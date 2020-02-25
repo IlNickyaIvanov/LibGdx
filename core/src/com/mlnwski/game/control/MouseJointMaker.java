@@ -2,7 +2,6 @@ package com.mlnwski.game.control;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
@@ -17,6 +16,9 @@ public class MouseJointMaker {
     public MouseJointMaker(World world, Vector2 vec, Body targetBody){
         this.world = world;
         MouseJointDef md = new MouseJointDef();
+
+        vec.x -= targetBody.getPosition().x;
+        vec.y -= targetBody.getPosition().y;
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;

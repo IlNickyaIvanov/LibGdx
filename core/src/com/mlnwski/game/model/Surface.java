@@ -22,10 +22,12 @@ public class Surface {
 
             surface = new ArrayList<>();
             for(int i = -300; i < 300; i++){
-                surface.add(new Vector2(
-                        (float)(width/2+width/200f*i),height/2f+(float)(height/4 -height/4*Math.sin(3*Math.PI/200*i))
-                ));
-                //surface.add(new Vector2(width/2 + width/200*i,(float)(height-height/10000*Math.pow(i,2))));
+                //surface.add(new Vector2(width/2+i*width/200,height/2+height/4));
+                //surface.add(new Vector2(
+                //        (float)(width/2+width/200f*i),height/2f+(float)(height/4 -height/4*Math.sin(3*Math.PI/200*i))
+                //));
+                surface.add(new Vector2(width/2 + width/200*i,(float)(height-height/10000*Math.pow(i,2))));
+                //surface.add(new Vector2((float)(width/2+width/2*Math.cos(2*Math.PI/300*i)),(float)(height/2+height/2*Math.sin(2*Math.PI/300*i))));
             }
 
 

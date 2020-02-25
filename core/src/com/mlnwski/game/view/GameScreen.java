@@ -1,6 +1,6 @@
 package com.mlnwski.game.view;
 
-import com.badlogic.gdx.ApplicationListener;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
@@ -8,7 +8,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2D;
@@ -16,17 +18,14 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.QueryCallback;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.mlnwski.game.control.MouseJointMaker;
 import com.mlnwski.game.model.DynamicObject;
-import com.mlnwski.game.model.Pair;
 import com.mlnwski.game.model.Particle;
 import com.mlnwski.game.model.StaticObject;
 import com.mlnwski.game.model.Surface;
 
 import java.util.ArrayList;
-
-import sun.java2d.opengl.WGLSurfaceData;
+import java.util.GregorianCalendar;
 
 public class GameScreen extends InputAdapter implements Screen {
 
@@ -37,16 +36,20 @@ public class GameScreen extends InputAdapter implements Screen {
     private Surface surface;
 
     private MouseJointMaker mjm;
+    private Picture picture;
 
     private SpriteBatch batch;
     private World world;
     private Box2DDebugRenderer debugRenderer;
     private OrthographicCamera camera;
     private float k;
+
+    Sprite sprite;
+    //ShapeRenderer shapeRenderer;
     @Override
     public void show() {
         Box2D.init();
-        world = new World(new Vector2(0, -7f), false);
+        world = new World(new Vector2(0, 0), false);
         debugRenderer = new Box2DDebugRenderer();
         batch = new SpriteBatch();
         boxes = new ArrayList<>();
@@ -58,8 +61,20 @@ public class GameScreen extends InputAdapter implements Screen {
         camera.position.set(0,0,0);
 
         k = camera.viewportWidth/Gdx.graphics.getWidth();
+        //picture = new Picture(batch,new Texture("hero.png"),worldToPixels(new Vector2(0.3f,0)).x);
+        Vector2 vec = worldToPixels(new Vector2(0,0));
+        //vec.x -= Gdx.graphics.getWidth();
+        //vec.y -= Gdx.graphics.getHeight();
+        int size = (int)worldToPixels(1f);
+        sprite = new Sprite(new Texture("hero.png"),size,
+                size);
+        sprite.setPosition(vec.x-size/2f,vec.y-size/2f);
+
+
+
         //platform = new StaticObject(world,0,-2,1,0.1f);
-        surface = new Surface(Gdx.graphics.getWidth(),Gdx.graphics.getHeight(),camera,k,world);
+        //Vector2 vec = pixelsToWorld(new Vector2(Gdx.graphics.getWidth(),Gdx.graphics.getHeight()));
+        //surface = new Surface(Gdx.graphics.getWidth(),Gdx.graphics.getHeight(),camera,k,world);
 
         /*Vector2 vec = new Vector2(-1,Gdx.graphics.getHeight()/2);
         vec = pixelsToWorld(vec);
@@ -87,31 +102,21 @@ public class GameScreen extends InputAdapter implements Screen {
 
         debugRenderer.render(world, camera.combined);
         if(Gdx.input.isKeyPressed(Input.Keys.Q))
-            camera.zoom+=0.01f;
+            camera.zoom+=0.1f;
         if(Gdx.input.isKeyPressed(Input.Keys.E))
-            camera.zoom-=0.01f;
+            camera.zoom-=0.1f;
         if(Gdx.input.isKeyPressed(Input.Keys.A))
-            camera.position.x-=0.01f;
+            camera.position.x-=0.1f;
         if(Gdx.input.isKeyPressed(Input.Keys.D))
-            camera.position.x+=0.01f;
+            camera.position.x+=0.1f;
         if(Gdx.input.isKeyPressed(Input.Keys.S))
-            camera.position.y-=0.01f;
+            camera.position.y-=0.1f;
         if(Gdx.input.isKeyPressed(Input.Keys.W))
-            camera.position.y+=0.01f;
+            camera.position.y+=0.1f;
         camera.update();
-        if(Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)){
-            k = camera.viewportWidth/Gdx.graphics.getWidth();
+        //if(Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)){
 
-            Vector2 vec2 = pixelsToWorld(new Vector2(Gdx.input.getX(),Gdx.input.getY()));
-
-            boxes.add(new DynamicObject(world, new Texture("box.png"),
-                    vec2.x, vec2.y, 0.3f, 0.2f) {
-                @Override
-                public void draw(SpriteBatch batch) {
-                    super.draw(batch);
-                }
-            });
-        }
+        //}
         /*
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
             checkClikOnObject(new Vector2(Gdx.input.getX(),Gdx.input.getY()));
@@ -130,9 +135,15 @@ public class GameScreen extends InputAdapter implements Screen {
         // }
 
         //batch.setProjectionMatrix(camera.combined);
-        //batch.begin();
+        k = camera.viewportWidth/Gdx.graphics.getWidth();
+        batch.begin();
+        sprite.setScale((camera.zoom>0)?camera.zoom:0.0000001f);
+        sprite.draw(batch);
+        batch.end();
+
         for(int i = 0; i < boxes.size(); i++){
         //   if(boxes.get(i).bo)boxes.get(i).draw(batch);
+            boxes.get(i).applyForce(pixelsToWorld(new Vector2(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2)));
             if(boxes.get(i).checkForDelete(camera))
                 boxes.remove(i);
         }
@@ -167,6 +178,13 @@ public class GameScreen extends InputAdapter implements Screen {
     public void dispose() {
 
     }
+//k = camera.viewportWidth/Gdx.graphics.getWidth(); mm/pxls
+    float worldToPixels(float a){
+        return a*(1/k);
+    }
+    float pixelsToWorld(float a){
+        return a*k;
+    }
 
     Vector2 worldToPixels(Vector2 vec2){
         vec2.x = (vec2.x - camera.position.x)/(k*camera.zoom) + Gdx.graphics.getWidth()/2f ;
@@ -188,12 +206,13 @@ public class GameScreen extends InputAdapter implements Screen {
         }
     }
 
+    private boolean isBoxTouched = false;
     private QueryCallback queryCallback = new QueryCallback() {
         @Override
         public boolean reportFixture(Fixture fixture) {
-
-            mjm = new MouseJointMaker(world,worldToPixels(
+            mjm = new MouseJointMaker(world,pixelsToWorld(
                     new Vector2(Gdx.input.getX(),Gdx.input.getY())),fixture.getBody());
+            isBoxTouched = true;
             return false;
         }
     };
@@ -201,8 +220,20 @@ public class GameScreen extends InputAdapter implements Screen {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         Vector2 vec = pixelsToWorld(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+
         camera.unproject(new Vector3(vec.x,vec.y,0));
         world.QueryAABB(queryCallback,vec.x,vec.y,vec.x,vec.y);
+
+        k = camera.viewportWidth/Gdx.graphics.getWidth();
+        if(!isBoxTouched)
+            boxes.add(new DynamicObject(world, new Texture("box.png"),
+                vec.x, vec.y, 0.3f, 0.2f) {
+            @Override
+            public void draw(SpriteBatch batch) {
+                super.draw(batch);
+            }
+        });
+
         return true;
     }
 
@@ -211,6 +242,7 @@ public class GameScreen extends InputAdapter implements Screen {
         if(mjm!=null)
             mjm.deleteJoin();
         mjm = null;
+        isBoxTouched = false;
         return true;
     }
 
@@ -219,7 +251,7 @@ public class GameScreen extends InputAdapter implements Screen {
         camera.unproject(new Vector3(screenX,screenY,0));
         if(mjm==null)
             return true;
-        mjm.update(worldToPixels(
+        mjm.update(pixelsToWorld(
                 (new Vector2(Gdx.input.getX(),Gdx.input.getY()))));
         return true;
     }

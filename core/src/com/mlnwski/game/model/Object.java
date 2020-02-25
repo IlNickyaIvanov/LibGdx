@@ -10,9 +10,11 @@ import com.badlogic.gdx.physics.box2d.World;
 public class Object {
     public Body body;
     World world;
+    public static final float RAD = 1f;
     public boolean checkForDelete(OrthographicCamera camera){
-        if(body.getPosition().y < camera.position.y-camera.viewportHeight/2) {
-            world.destroyBody(body);
+        if(Math.pow(body.getPosition().x,2)+ Math.pow(body.getPosition().y,2)<Math.pow(RAD,2)){
+        //if(body.getPosition().y < camera.position.y-camera.viewportHeight/2) {
+           world.destroyBody(body);
             return true;
         }
         return false;

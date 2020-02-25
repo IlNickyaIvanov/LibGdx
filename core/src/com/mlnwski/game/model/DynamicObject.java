@@ -32,21 +32,23 @@ public class DynamicObject extends  Object {
         //vertices[2] = new Vector2(0.20f, -0.15f);
         //vertices[3] = new Vector2(-0.10f, -0.10f);
 
-        PolygonShape box = new PolygonShape();
-        box.setAsBox(width,height);
+        //PolygonShape box = new PolygonShape();
+        //box.setAsBox(width,height);
         //box.set(vertices);
 
-        //CircleShape circle = new CircleShape();
-        //circle.setRadius(height/2);
+        CircleShape circle = new CircleShape();
+        circle.setRadius(height*0.75f);
         //circle.setPosition(new Vector2(-width,height));
 
         FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = box;
-        fixtureDef.density = 1f;
-        fixtureDef.friction = 1f;
-        fixtureDef.restitution = 0.5f;
+        fixtureDef.shape = circle;
+
+        fixtureDef.density = 0.1f;
+        fixtureDef.friction = 0.0f;
+        fixtureDef.restitution = 1f;
 
         body.createFixture(fixtureDef);
+        body.applyForce(new Vector2(0,-3),new Vector2(0,0),true);
 
         //body.createFixture(box,0.1f);
         //body.createFixture(circle,0.1f);
@@ -54,8 +56,8 @@ public class DynamicObject extends  Object {
         //body.createFixture(circle,0.1f);
 
 
-        box.dispose();
-        //circle.dispose();
+        //box.dispose();
+        circle.dispose();
     }
 
     public void draw(SpriteBatch batch){
@@ -74,6 +76,13 @@ public class DynamicObject extends  Object {
         nvec.y = (float) (Math.sin(a)*vec.x + Math.cos(a)*vec.y);
 
         return (Math.abs(nvec.x)<width && Math.abs(nvec.y)<height);
+    }
+
+    public void applyForce(Vector2 vec2){
+        Vector2 vec = new Vector2(vec2.x - body.getPosition().x, vec2.y - body.getPosition().y);
+        vec.x *= 0.10;
+        vec.y *= 0.10;
+        body.applyForce(vec,new Vector2(0,0),true);
     }
 
 }

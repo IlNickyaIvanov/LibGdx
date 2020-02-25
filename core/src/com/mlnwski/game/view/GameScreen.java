@@ -68,6 +68,7 @@ public class GameScreen extends InputAdapter implements Screen {
         int size = (int)worldToPixels(1f);
         sprite = new Sprite(new Texture("hero.png"),size,
                 size);
+        
         sprite.setPosition(vec.x-size/2f,vec.y-size/2f);
 
 
